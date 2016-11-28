@@ -1,0 +1,49 @@
+---
+layout: post
+title:  "On Behold v0.0.3"
+cover: raten_pass_martin_sattler.jpg
+date: 2016-11-28 21:20:00+11
+cover_artist: Martin Sattler
+cover_link: https://unsplash.com/photos/3a20DBlwvYY
+tags:
+---
+
+I've recently deployed the latest version of Behold, which is [now available on the Docker Hub](https://hub.docker.com/r/huddo121/behold/). There were a number of changes brought in to v0.0.3, with new new UI being the most immediately noticeable difference. [A changelog is also now available for the project](https://github.com/Huddo121/Behold/blob/530a8b9e09afe9144c05b412f2532c92cdeb1f6b/CHANGELOG.md).
+
+The other big change is the inclusion of log output for running containers. This also includes [a plugin for transforming the ANSI colour coded output in to HTML](https://github.com/drudru/ansi_up), so hopefully the log output isn't horrendously ugly.
+
+{% include captioned_image.html image="behold/container_log_0.0.3.png" caption="Viewing Behold's own container log" %}
+
+There are some instances I've noticed where strange characters start appearing in the log, where log lines will begin with `4`s, `G`s, `)`s in the browser, but not within the terminal when I run `docker logs ...`. An example of this is from the logging output of [Gitlab Server](https://hub.docker.com/r/gitlab/gitlab-ce/), where the app is seeing the following at the start of some lines.
+
+````
+[ '\u0001',
+  '\u0000',
+  '\u0000',
+  '\u0000',
+  '\u0000',
+  '\u0000',
+  '\u0000',
+  '4',
+  '=',
+  '=',
+  '>' ]
+````
+
+The `4==>` is visible, but I'm only expecting to see the `==>`.
+
+# [Digital Styles](https://youtu.be/G9FGgwCQ22w?t=3m18s)
+I migrated away from [Picnic CSS](http://picnicss.com/) and began using [mdbootstrap](http://mdbootstrap.com/). This was a surprisingly easy change, and gives me immediate access to a lot more components. This also had the upshot of not requiring Bower anymore, simplifying the build process.
+
+# Invisible Changes
+As I've worked on this project I've learnt a little more about javascript, and in doing so, immediately nullified that slightly simplified build process. Dealing with Promises on their own was a bit painful, and I pined for some async/await syntax to ease that pain. I evaluated a few options, and wound up going with Babel to transpile my javascript. This didn't take too long to set up, especially since I was already exporting all my javascript to an output directory, so adding another step to the pipeline wasn't that difficult.
+
+I've also created my own wrapper around the Dockerode client, which handles a lot of the functionality that I was repeating within the summary and details views for both containers and images.
+
+# Project Changes
+I've also started managing Behold a little more formally. I've moved all my Behold work to its [own Trello board](https://trello.com/b/iiUt9dTG), which was necessitated by the number of changes I had going in flight at once, and the amount of ideas I was generating while working on Behold. I had initially attempted to use GitHub projects, but found that it was just a poor analogue of Trello.
+
+# Planned Changes
+I'm looking to improve some of the Docker details for Behold, namely moving off of the node:slim build to the full one, and injecting the project version in to the Dockerfile rather than duplicating it in both the package.json and Dockerfile.
+
+I'm also going to look a little bit more in to displaying the links between containers, and potentially will be revisiting one of the earlier layouts that I discussed in the [previous blog post]({% link _posts/2016-10-19-on-playing-with-docker-part-2.markdown %}).
