@@ -81,6 +81,13 @@ social:
   - name: Reddit
     icon: reddit
     share: true
+    
+  - name: "Hacker News"
+    icon: hacker-news
+    username:
+    url:
+    desc: Share to Hacker News
+    share: true
 
 protocols:
     fb_image: "/assets/Logo.png"
