@@ -14,6 +14,13 @@ When I first started becoming interested in Elixir one of the things that drew m
 # Changes In Phoenix v1.3.0
 The big new thing with Phoenix v1.3.0 is the new directory structure that the generators use, and where the generators put different types of code. Based on comments Phoenix's creator Chris McCord [<i class="fa fa-twitter fa-lg"></i>](https://twitter.com/chris_mccord) made in [this video](https://www.youtube.com/watch?v=tMO28ar0lW8), now would appear to be a great time for newcomers to Phoenix to start playing with the framework. These changes seem to be squarely aimed at helping people that are new to Phoenix make better decisions about their application from the get-go, and so should make it easier for newcomers to grow their Phoenix applications beyond a trivial tutorial application.
 
+---
+
+# NOTE TO ALL READERS
+**Phoenix v1.3.0 has now officially been released. Unfortunately there are differences between the actual release and the release candidate that this blog was based on. I am currently in the process of redoing the post so that future readers won't be as confused**
+
+---
+
 # Installing Phoenix
 If you don't already have a valid elixir environment up and running, we'll need to get that done first. Instructions for macOS, several \*nix flavours and Windows are available [on the official elixir-lang website](https://elixir-lang.org/install.html). As part of installing Elixir you'll also get [mix](https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html), a build tool and task runner for Elixir, which we'll use throughout this blog post.
 
@@ -695,7 +702,7 @@ Hopefully you explored some of the documentation linked to throughout this blog 
 
 Most importantly we learned that generators are a starting point, and that there's nothing to be scared of when modifying code that has been generated for you, you aren't beholden to what the generators can do for you.
 
-One of the things that has really please me as I've been learning Phoenix and Ecto is how little magic there is really going on, and it's quite easy to peek under the hood and look at the git repos of [Phoenix <i class="fa fa-github"></i>](https://github.com/phoenixframework/phoenix/) or [Ecto <i class="fa fa-github"></i>](https://github.com/elixir-ecto/ecto/).
+One of the things that has really pleased me as I've been learning Phoenix and Ecto is how little magic there is really going on, and it's quite easy to peek under the hood and look at the git repos of [Phoenix <i class="fa fa-github"></i>](https://github.com/phoenixframework/phoenix/) or [Ecto <i class="fa fa-github"></i>](https://github.com/elixir-ecto/ecto/).
 
 There's a lot to improve with this app, and with our understanding of Phoenix, but this is a _good start_.
 
