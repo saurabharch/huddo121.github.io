@@ -14,12 +14,8 @@ When I first started becoming interested in Elixir one of the things that drew m
 # Changes In Phoenix v1.3.0
 The big new thing with Phoenix v1.3.0 is the new directory structure that the generators use, and where the generators put different types of code. Based on comments Phoenix's creator Chris McCord [<i class="fa fa-twitter fa-lg"></i>](https://twitter.com/chris_mccord) made in [this video](https://www.youtube.com/watch?v=tMO28ar0lW8), now would appear to be a great time for newcomers to Phoenix to start playing with the framework. These changes seem to be squarely aimed at helping people that are new to Phoenix make better decisions about their application from the get-go, and so should make it easier for newcomers to grow their Phoenix applications beyond a trivial tutorial application.
 
----
-
-# NOTE TO ALL READERS
-**Phoenix v1.3.0 has now officially been released. Unfortunately there are differences between the actual release and the release candidate that this blog was based on. I am currently in the process of redoing the post so that future readers won't be as confused**
-
----
+## Note To Future Readers
+This blog post was originally written using Phoenix v1.3.0-rc2. Between the original publication date of this blog post and Phoenix v1.3.0's official release there were a number of changes that affected the examples in this blog post, including further directory structure updates, different names for schemas and tables created using the generators, and the removal of `:required` from the generators. This blog post has been updated to reflect those changes, and the example repository has been updated to reflect all of the new changes. The previous Phoenix v1.3.0-rc2 code is available in the same repository, and is [tagged with phoenix_v1.3.0-rc2 <i class="fa fa-github"></i>](https://github.com/Huddo121/RosterApp/releases/tag/phoenix_v1.3.0-rc2).
 
 # Installing Phoenix
 If you don't already have a valid elixir environment up and running, we'll need to get that done first. Instructions for macOS, several \*nix flavours and Windows are available [on the official elixir-lang website](https://elixir-lang.org/install.html). As part of installing Elixir you'll also get [mix](https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html), a build tool and task runner for Elixir, which we'll use throughout this blog post.
@@ -143,7 +139,7 @@ defmodule RosterApp.Accounts.User do
   alias RosterApp.Accounts.User
 
 
-  schema "accounts_users" do
+  schema "users" do
     field :display_name, :string
     field :email, :string
     field :password, :string
@@ -167,14 +163,14 @@ We can see that the above code is defining a schema, which defines what it means
 
 A `Changeset` is just a neat way to manage common operations made against [structs](https://elixir-lang.org/getting-started/structs.html), and in this instance we're using it to validate external input. A `Changeset` will also keep track of any validation errors that occur within the above pipeline, which we can use to provide feedback to the user.
 
-Another interesting file is `priv/repo/migrations/<datetime>_create_accounts_user.ex`. This file is a database migration for our application. Here we can see it creating a table based on the attributes we defined in our generator command earlier, as well as a unique index on the email field.
+Another interesting file is `priv/repo/migrations/<datetime>_create_users.ex`. This file is a database migration for our application. Here we can see it creating a table based on the attributes we defined in our generator command earlier, as well as a unique index on the email field.
 
 ```elixir
-defmodule RosterApp.Repo.Migrations.CreateRosterApp.Accounts.User do
+defmodule RosterApp.Repo.Migrations.CreateUsers do
   use Ecto.Migration
 
   def change do
-    create table(:accounts_users) do
+    create table(:users) do
       add :email, :string
       add :display_name, :string
       add :password, :string
@@ -182,29 +178,29 @@ defmodule RosterApp.Repo.Migrations.CreateRosterApp.Accounts.User do
       timestamps()
     end
 
-    create unique_index(:accounts_users, [:email])
+    create unique_index(:users, [:email])
   end
 end
 ```
 
-Note that the migration has used the atom `:accounts_users` in the `create table` command, and the `User` schema uses the name `"accounts_users"`. These will map directly to a table in Postgres called `accounts_users`. Remember, [an atom is just a constant where its name is its value](https://elixir-lang.org/getting-started/basic-types.html#atoms), so for our purposes here these values are the same. In some instances we will refer to the `User` module, and in others we may need to refer to the schema by name, `"accounts_users"`.
+Note that the migration has used the atom `:users` in the `create table` command, and the `User` schema uses the name `"users"`. These will map directly to a table in Postgres called `users`. Remember, [an atom is just a constant where its name is its value](https://elixir-lang.org/getting-started/basic-types.html#atoms), so for our purposes here these values are the same. In some instances we will refer to the `User` module, and in others we may need to refer to the schema by name, `"users"`.
 
 We're currently using string to hold passwords for now, and we're not going to be adding any sort of security (or actual user interaction) in this application, but please do have a read through Nithin Bekal's blog post on [adding user authentication in to a phoenix application](http://nithinbekal.com/posts/phoenix-authentication/) for a better example of handling user authentication.
 
 When you ran the generator command earlier you may have missed the following message in your terminal.
 
 ```
-Add the resource to your browser scope in lib/roster_app/web/router.ex:
+Add the resource to your browser scope in lib/roster_app_web/router.ex:
 
     resources "/users", UserController
 ```
 
 ***MAKE SURE YOU DO IT!***
 
-If you see an error saying "user_path does not exist" or similar when compiling your Phoenix application you've probably forgotten this step. So make sure you open `lib/roster_app/web/router.ex` and update the `scope "/"` block to look like the following.
+If you see an error saying "user_path does not exist" or similar when compiling your Phoenix application you've probably forgotten this step. So make sure you open `lib/roster_app_web/router.ex` and update the `scope "/"` block to look like the following.
 
 ```elixir
-scope "/", RosterApp.Web do
+scope "/", RosterAppWeb do
   pipe_through :browser # Use the default browser stack
 
   get "/", PageController, :index
@@ -221,47 +217,50 @@ mix ecto.migrate
 This should result in your application being compiled, and some helpful little messages like the following;
 
 ```bash
-19:13:32.625 [info]  == Running RosterApp.Repo.Migrations.CreateRosterApp.Accounts.User.change/0 forward
+Compiling 10 files (.ex)
+Generated roster_app app
 
-19:13:32.625 [info]  create table accounts_users
+16:50:17.530 [info]  == Running RosterApp.Repo.Migrations.CreateUsers.change/0 forward
 
-19:13:32.654 [info]  create index accounts_users_email_index
+16:50:17.530 [info]  create table users
 
-19:13:32.671 [info]  == Migrated in 0.0s
+16:50:17.552 [info]  create index users_email_index
+
+16:50:17.566 [info]  == Migrated in 0.0s
 ```
 
 We can actually take this opportunity to have little bit of a look inside our database to see what has been generated for us. On the command line run `docker exec -it roster-app-dev-db /bin/sh` to get shell access to our container, and then inside the container run `psql -U postgres -d roster_app_dev` to start up the Postgres interactive terminal.
 
 
-If we use `\d` to list out the relations for our current database (we passed `-d roster_app_dev` in to the `psql` command, immediately setting it as our current database) we can see a familiar relation name, `accounts_users`!
+If we use `\d` to list out the relations for our current database (we passed `-d roster_app_dev` in to the `psql` command, immediately setting it as our current database) we can see a familiar relation name, `users`!
 
 ```
 roster_app_dev=# \d
-                  List of relations
- Schema |         Name                   |   Type   |  Owner
---------+--------------------------------+----------+----------
- public | accounts_users                 | table    | postgres
- public | accounts_users_id_seq          | sequence | postgres
- public | schema_migrations              | table    | postgres
+                List of relations
+ Schema |       Name        |   Type   |  Owner
+--------+-------------------+----------+----------
+ public | schema_migrations | table    | postgres
+ public | users             | table    | postgres
+ public | users_id_seq      | sequence | postgres
 (3 rows)
 ```
 
-Using `\d+ RELATION_NAME` we can get a bit more information about a particular relation, such as our `accounts_users` table.
+Using `\d+ RELATION_NAME` we can get a bit more information about a particular relation, such as our `users` table.
 
 ```
-roster_app_dev=# \d+ accounts_users
-                                                          Table "public.accounts_users"
-    Column    |            Type             |                          Modifiers                          | Storage  | Stats target | Description
---------------+-----------------------------+-------------------------------------------------------------+----------+--------------+-------------
- id           | integer                     | not null default nextval('accounts_users_id_seq'::regclass) | plain    |              |
- email        | character varying(255)      |                                                             | extended |              |
- display_name | character varying(255)      |                                                             | extended |              |
- password     | character varying(255)      |                                                             | extended |              |
- inserted_at  | timestamp without time zone | not null                                                    | plain    |              |
- updated_at   | timestamp without time zone | not null                                                    | plain    |              |
+roster_app_dev=# \d+ users
+                                                          Table "public.users"
+    Column    |            Type             |                     Modifiers                      | Storage  | Stats target | Description
+--------------+-----------------------------+----------------------------------------------------+----------+--------------+-------------
+ id           | integer                     | not null default nextval('users_id_seq'::regclass) | plain    |              |
+ email        | character varying(255)      |                                                    | extended |              |
+ display_name | character varying(255)      |                                                    | extended |              |
+ password     | character varying(255)      |                                                    | extended |              |
+ inserted_at  | timestamp without time zone | not null                                           | plain    |              |
+ updated_at   | timestamp without time zone | not null                                           | plain    |              |
 Indexes:
-    "accounts_users_pkey" PRIMARY KEY, btree (id)
-    "accounts_users_email_index" UNIQUE, btree (email)
+    "users_pkey" PRIMARY KEY, btree (id)
+    "users_email_index" UNIQUE, btree (email)
 ```
 
 If we look at the columns listed we will see that there are a few fields here that we didn't specify. It looks like an `id` field has been created on our behalf, which for our purposes is fine as an integer, though this [can be changed](https://blog.fourk.io/uuids-as-primary-keys-in-phoenix-with-ecto-and-elixir-1dd79e1ecc2e). But what in the devil are these `inserted_at` and `updated_at` columns? Well, much like the `id` column these were automatically added to our schema when we generated the `User`. If you look in our `User` and the associated migration you'll see that there is a call to a `timestamps/0` function in each case, and that's where these columns are coming from.
@@ -303,35 +302,37 @@ We can now go back to `localhost:4000/users` and verify that our validation is b
 If everything is working for you, now would be a good time to commit, because we're about to add in `Shift`. `Shift`s fall under the `Rostering` area of concern, so as we did with `User`, we'll use that area of concern as the context.
 
 ```bash
-mix phx.gen.html Rostering Shift shifts user:references:accounts_users start_time:datetime end_time:datetime
+mix phx.gen.html Rostering Shift shifts user_id:references:users start_time:datetime end_time:datetime
 ```
 
-That `user:references:accounts_users` bit is new, so let's unpack that a bit. The first part, `user`, is our field name, which we're using to keep track of the person that will be working the shift. By using `references` we're telling the generator that we're actually not going to store the user here, but instead will refer to data stored elsewhere. We use `accounts_users` here, as the last part of this little triplet is the schema we're referring to, not the name of the module.
+That `user:references:users` bit is new, so let's unpack that a bit. The first part, `user`, is our field name, which we're using to keep track of the person that will be working the shift. By using `references` we're telling the generator that we're actually not going to store the user here, but instead will refer to data stored elsewhere. We use the plural `users` here, as the last part of this little triplet is the schema we're referring to, not the name of the module.
 
-The files generated this time around will have a very similar layout to the files that were generated for `User`, but let's have a look at some of the differences. If we have a look in `priv/repo/migrations/<datetime>_create_rostering_shift.exs` we will see the following in the `change/0` function.
+The files generated this time around will have a very similar layout to the files that were generated for `User`, but let's have a look at some of the differences. If we have a look in `priv/repo/migrations/<datetime>_create_shifts.exs` we will see the following in the `change/0` function.
 
 ```elixir
-create table(:rostering_shifts) do
+create table(:shifts) do
   add :start_time, :naive_datetime
   add :end_time, :naive_datetime
-  add :user_id, references(:accounts_users, on_delete: :nothing), null: false
+  add :user_id, references(:users, on_delete: :nothing), null: false
 
   timestamps()
 end
+
+create index(:shifts, [:user_id])
 ```
 
-Here we can see what effect `user:references:accounts_users` had on the generated migration. If you remember earlier, `user_id` was the name of one of the columns in the `accounts_users` table that was made for us. One gotcha is that this column name is based on the field name we specified in our `mix phx.gen.html` command, and isn't extracted from the schema we're referencing. So if we had specified the person working the shift using something like `assignee:references:accounts_users` we would have to come in to this migration and change the call to [`references/2`](https://hexdocs.pm/ecto/Ecto.Migration.html#references/2) to include `column: :user_id`.
+Here we can see what effect `user_id:references:users` had on the generated migration. If you remember earlier, `user_id` was the name of one of the columns in the `users` table that was made for us. One gotcha is that this column name is based on the field name we specified in our `mix phx.gen.html` command, and isn't extracted from the schema we're referencing. So if we had specified the person working the shift using something like `assignee:references:users` we would have to come in to this migration and change the call to [`references/2`](https://hexdocs.pm/ecto/Ecto.Migration.html#references/2) to include `column: :user_id`.
 
 One difference you may notice above is that I've added `null: false` for the `:user_id` column, which enforces a not-null constraint for the `user_id` column in the database. Don't be afraid to play around in the generated files, until they're committed (perhaps even merged in to master, depends on your appetite for this sort of thing) you are free modify them as you wish. Remember, generators are a starting point, not a destination.
 
 Since we've made the database column non-nullable in our migration, we should add some validation to the `Shift` so that we can catch the missing field before hitting the database, and provide a more meaningful message to the user. All we need to do is add `:user_id` to both `cast/3` and `validate_required/3`, and now all shifts in our system will need to be assigned to someone in order to be persisted to our data store.
 
 ```elixir
+# in lib/roster_app/rostering/shift.ex
 def changeset(%Shift{} = shift, attrs) do
-    shift
-    |> cast(attrs, [:start_time, :end_time, :user_id])
-    |> validate_required([:start_time, :end_time, :user_id])
-  end
+  shift
+  |> cast(attrs, [:start_time, :end_time, :user_id])
+  |> validate_required([:start_time, :end_time, :user_id])
 end
 ```
 
@@ -353,20 +354,19 @@ Oh, right, we made `:user_id` mandatory, but we don't have a way to input it!
 ## Templates
 So far in this project we've just been making use of the inbuilt templates that Phoenix has provided for us, but now we've changed the backend a bit and need to provide for that functionality in the frontend.
 
-The templates for our app have an extension of `.eex`, which stands for "Embedded Elixir". The templating engine is actually [a part of Elixir itself](https://hexdocs.pm/eex/EEx.html) itself, not Phoenix! What Phoenix's HTML generator does do for us here though, is create some basic pages for us view and edit the data in our application, which is what we've been looking at so far. These templates live in `lib/roster_app/web/templates`, and are named after the modules we created earlier.
+The templates for our app have an extension of `.eex`, which stands for "Embedded Elixir". The templating engine is actually [a part of Elixir itself](https://hexdocs.pm/eex/EEx.html) itself, not Phoenix! What Phoenix's HTML generator does do for us here though, is create some basic pages for us view and edit the data in our application, which is what we've been looking at so far. These templates live in `lib/roster_app_web/templates`, and are named after the modules we created earlier.
 
-We know that we need to set the `:user_id` for a shift, so if we look at the `lib/roster_app/web/templates/shift` directory we should see five files; edit, form, index, view, and show. These templates are just ones generated by Phoenix, the names don't mean anything, but for now, it makes it easy for us to work out where we need to make changes. If we open `new.html.eex` we'll not see much.
+We know that we need to set the `:user_id` for a shift, so if we look at the `lib/roster_app_web/templates/shift` directory we should see five files; edit, form, index, view, and show. These templates are just ones generated by Phoenix, the names don't mean anything, but for now, it makes it easy for us to work out where we need to make changes. If we open `new.html.eex` we'll not see much.
 
 ```elixir
 <h2>New Shift</h2>
 
-<%= render "form.html", changeset: @changeset,
-                        action: shift_path(@conn, :create) %>
+<%= render "form.html", Map.put(assigns, :action, shift_path(@conn, :create)) %>
 
 <span><%= link "Back", to: shift_path(@conn, :index) %></span>
 ```
 
-This looks mostly like HTML, though there are some funny tags in here. Between `<%=` and `%>` we've actually got an elixir expression, and when these expressions are executed the result will be output in place of the tag. We can see that `render` is being called, with `"form.html"` as a parameter, as well as some named parameters, so let's jump in to `form.html.eex`.
+This looks almost like HTML, though there are some funny tags in here. Between `<%=` and `%>` we've actually got an elixir expression, and when these expressions are executed the result will be output in place of the tag. We can see that `render` is being called, with `"form.html"` as a parameter, as well as some named parameters, so let's jump in to `form.html.eex`.
 
 ```elixir
 <%= form_for @changeset, @action, fn f -> %>
@@ -412,7 +412,7 @@ Notice that we not only changed the name of the field we're editing, but the typ
 
 Well, hopefully, there's a chance that putting in "1" as `user_id` didn't work for you, and that could be for any number of reasons.
 
-Let's make it easy for ourselves to find a user's id. The template that lists all the users is `lib/roster_app/web/templates/user/index.html.eex`, so let's open it up and add a new column to the table to display each user's id.
+Let's make it easy for ourselves to find a user's id. The template that lists all the users is `lib/roster_app_web/templates/user/index.html.eex`, so let's open it up and add a new column to the table to display each user's id.
 
 ```html
 <tr>
@@ -435,33 +435,33 @@ With those changes in place we should be able to see our user's ids, and with th
 Let's move along, and now add the `Roster` to our application.
 
 ```bash
-mix phx.gen.html Rostering Roster rosters name:string:required
+mix phx.gen.html Rostering Roster rosters name:string
 ```
 
-Not much new going on there, but the `Roster` is quite barren, it's only got a name, which we've marked as `required`, but no shifts. Unfortunately, the generators don't have an inbuilt way to create a one-to-many relationship, but adding one isn't much more difficult that what we've already done today.
+Not much new going on there, but the `Roster` is quite barren, it's only got a name, but no shifts. Unfortunately, the generators don't have an inbuilt way to create a one-to-many relationship, but adding one isn't much more difficult that what we've already done today.
 
 Before moving on, add the resource to `router.ex` as the instructions say, just like we did for our `User` and `Shift` resources.
 
-The first place we're going to start this time is inside our new migration, `priv/repo/migrations/<datetime>_create_rostering_roster.exs`. We want to add a reference from each shift to point to the roster it is a part of, so for our migration we'll need to modify `change/0` to the following.
+The first place we're going to start this time is inside our new migration, `priv/repo/migrations/<datetime>_create_rosters.exs`. There are a couple of things we want to take care of here. Firstly, we want to make sure that each roster has a name, by adding `null: false` to the column definition. Secondly, we want to add a reference from each shift to point to the roster it is a part of, so for our migration we'll need to modify `change/0` to the following.
 
 ```elixir
-create table(:rostering_rosters) do
-  add :name, :string
+create table(:rosters) do
+  add :name, :string, null: false
 
   timestamps()
 end
 
-alter table(:rostering_shifts) do
-  add :roster_id, references(:rostering_rosters, on_delete: :nothing), null: false
+alter table(:shifts) do
+  add :roster_id, references(:rosters, on_delete: :nothing), null: false
 end
 ```
 
-What we are doing here is modifying an existing table, `rostering_shifts`, which corresponds to table backing the schema for `RosterApp.Rostering.Shift`. We're simply adding a new column, `roster_id`, which is going to reference the newly created table in this migration. Since a `Shift` can't exist without being on a roster we're going to set the reference to be non-nullable, and we will need to update the schema in our `Shift` module to reflect that.
+What we are doing here is modifying an existing table, `shifts`, which corresponds to table backing the schema for `RosterApp.Rostering.Shift`. We're simply adding a new column, `roster_id`, which is going to reference the newly created table in this migration. Since a `Shift` can't exist without being on a roster we're going to set the reference to be non-nullable, and we will need to update the schema in our `Shift` module to reflect that.
 
 We'll need to add the field to the schema, `field :roster_id, :id`, and then modify the `changeset/2` function to cast the `:roster_id` from `attrs`, and make sure it's provided in the changeset using `validate_required/3`.
 
 ```elixir
-schema "rostering_shifts" do
+schema "shifts" do
   field :end_time, :naive_datetime
   field :start_time, :naive_datetime
   field :user_id, :id
@@ -481,13 +481,17 @@ end
  Alright, kill the server and run `mix ecto.migrate` to run the migrations.
  
  ```bash
- 23:41:42.765 [info]  alter table rostering_shifts
+ 19:07:10.546 [info]  == Running RosterApp.Repo.Migrations.CreateRosters.change/0 forward
+
+ 19:07:10.546 [info]  create table rosters
+
+ 19:07:10.561 [info]  alter table shifts
  ** (Postgrex.Error) ERROR 23502 (not_null_violation): column "roster_id" contains null values
  ```
  
  ***Woah, that failed!***
  
- It looks like since we've already got shifts in the `rostering_shifts` table, and haven't provided a default value for a non-nullable column, we can't perform the migration. Though in the real world this sort of migration might take a bit of work, the easiest course of action for us here is to nuke the database, and start again.
+ It looks like since we've already got shifts in the `shifts` table, and haven't provided a default value for a non-nullable column, we can't perform the migration. Though in the real world this sort of migration might take a bit of work, the easiest course of action for us here is to nuke the database, and start again.
  
  ```bash
 $ docker stop roster-app-dev-db
@@ -499,20 +503,20 @@ bb30c1c6ae6fe50da64586167da6487f7aab1757a5dda65e4b4ef365561c3311
 $ mix ecto.create && mix ecto.migrate && mix phx.server
 The database for RosterApp.Repo has been created
 
-18:16:35.995 [info]  == Running RosterApp.Repo.Migrations.CreateRosterApp.Accounts.User.change/0 forward
+19:09:23.517 [info]  == Running RosterApp.Repo.Migrations.CreateUsers.change/0 forward
 
-18:16:35.995 [info]  create table accounts_users
+19:09:23.518 [info]  create table users
 ...
-18:16:36.203 [info]  == Migrated in 0.0s
-[info] Running RosterApp.Web.Endpoint with Cowboy using http://0.0.0.0:4000
-18:16:38 - info: compiled 6 files into 2 files, copied 3 in 1.3 sec
+19:09:23.658 [info]  == Migrated in 0.0s
+[info] Running RosterAppWeb.Endpoint with Cowboy using http://0.0.0.0:4000
+19:09:25 - info: compiled 6 files into 2 files, copied 3 in 914 ms
 ```
 
 So after that we will have to do a little bit more data entry to get back to where we were.
 
 Create a roster by visiting `localhost:4000/rosters`, and filling in the roster's name, then create a user again, taking note of their user id. If we go to `localhost:4000/shifts` we'll see we can add in a user's id, but we can't add in the id of the roster we'd like it to be a part of.
 
-Like before, we'll need to modify `lib/roster_app/web/templates/shift/form.html.eex` to include a new `number_input` field.
+Like before, we'll need to modify `lib/roster_app_web/templates/shift/form.html.eex` to include a new `number_input` field.
 
 ```html
 <div class="form-group">
@@ -522,7 +526,7 @@ Like before, we'll need to modify `lib/roster_app/web/templates/shift/form.html.
 </div>
 ```
 
-We've already updated the `changeset/2` function to handle the `:roster_id`, so now we just need to have a way of getting the `:roster_id` from the UI. We're going to modify `lib/roster_app/web/templates/roster/index.html.eex` in pretty much exactly the same way as we modified `lib/roster_app/web/templates/user/index.html.eex`.
+We've already updated the `changeset/2` function to handle the `:roster_id`, so now we just need to have a way of getting the `:roster_id` from the UI. We're going to modify `lib/roster_app_web/templates/roster/index.html.eex` in pretty much exactly the same way as we modified `lib/roster_app_web/templates/user/index.html.eex`.
 
 ```html
 ...
@@ -549,7 +553,7 @@ Wow... We've come a long way already, ***but let's keep going!***
 So now we come to organisations. The role of an organisation in this application is to keep track of all the rosters for a group of people, as well as maintaining the relationships individuals have with rosters within organisations that thay're a member of.
 
 ```bash
-mix phx.gen.html Organisations Organisation organisations name:string:required
+mix phx.gen.html Organisations Organisation organisations name:string
 ```
 
 That's a pretty familiar looking command, with not much of note happening. We've introduced a new context, "Organisations", which we will use as a boundary for operations that affect `Organisation`s and their relationships. While we're here, now is a good time to add `resources "/organisations", OrganisationController` to our router.
@@ -558,11 +562,11 @@ We've so far only modelled one-to-many relationships as in the case of `User` to
 
 We need to create an intermediary table to store the relationship information between `User`s and `Organisation`s. We will start with just two relationship types, one standard user type, and an administrator type. A user can't have both relationship types with any given organisation at the same time, so we can store these relationships in the one place.
 
-Let's start by opening up our database migration in `priv/repo/migrations/<datetime>_create_organisations_organisation.exs`.
+Let's start by opening up our database migration in `priv/repo/migrations/<datetime>_create_organisations.exs`. Since we want every organisation to have a name, let's start by marking that field as non-nullable.
 
 ```elixir
-create table(:organisations_organisations) do
-  add :name, :string
+create table(:organisations) do
+  add :name, :string, null: false
 
   timestamps()
 end
@@ -571,27 +575,27 @@ end
 We know we need to create a new table to hold the relationship information. We also know that the new table will need to maintain a reference to a `User`, a reference to an `Organisation`, and the relationship between the two. So within this existing migration's `change/0` function, let's add the following.
 
 ```elixir
-create table(:organisations_organisations_users) do
-  add :organisation_id, references(:organisations_organisations, on_delete: :nothing), null: false
-  add :user_id, references(:accounts_users, on_delete: :nothing), null: false
+create table(:organisations_users) do
+  add :organisation_id, references(:organisations, on_delete: :nothing), null: false
+  add :user_id, references(:users, on_delete: :nothing), null: false
   add :relationship, :string, null: false
 
   timestamps()
 end
 
 # A user may only have at most 1 relationship with a given organisation
-unique_index(:organisations_organisations_users, [:organisation_id, :user_id], name: "organisations_organisations_users_unique_index")
+unique_index(:organisations_users, [:organisation_id, :user_id], name: "organisations_users_unique_index")
 ```
 
 There's not much new going on here, just `references/2` calls like we've seen before, and we've defined a `:string` column to hold the `:relationship`, and set all of these to `null: false`, which the database will now enforce for us. You'll notice that the name of the table follows a similar pattern to those used in the generators, and we'll need to remember this name when we define our schemas.
 
 Since a person can only have one relationship with each organisation we can capture that constraint in our database with a new unique index. We define our unique index using the helpfully named `unique_index/3` function. For our use case our unique index is using two columns, since the relationship only has to be unique in combination, not in isolation. That is, the same organisation id, and the same user id can appear in the table multiple times, just not multiple times together.
 
-We also need to remember that a `Roster` belongs to exactly 1 `Organisation` as well, so let's capture that in our database.
+We also need to remember that a `Roster` belongs to exactly 1 `Organisation` as well, so let's capture that in our database by adding the following to this `change/0` function.
 
 ```elixir
-alter table(:rostering_rosters) do
-  add :organisation_id, references(:organisations_organisations, on_delete: :nothing), null: false
+alter table(:rosters) do
+  add :organisation_id, references(:organisations, on_delete: :nothing), null: false
 end
 ```
 
@@ -610,7 +614,7 @@ defmodule RosterApp.Organisations.OrganisationUser do
   @default_user_relationship :member
   @admin_user_relationship :admin
 
-  schema "organisations_organisations_users" do
+  schema "organisations_users" do
     has_one :organisation, Organisation
     has_one :user, User
     field :relationship, :string, default: @default_user_relationship
@@ -622,14 +626,14 @@ defmodule RosterApp.Organisations.OrganisationUser do
     |> cast(attrs, [:organisation, :user, :relationship])
     |> validate_required([:organisation, :user, :relationship])
     |> validate_inclusion(:relationship, [@default_user_relationship, @admin_user_relationship])
-    |> unique_constraint(:organisation, name: "organisations_organisations_users_unique_index")
+    |> unique_constraint(:organisation, name: "organisations_users_unique_index")
   end
 end
 ```
 
 We've stored our relationship types as attributes on the module, `@default_user_relationship` and `@admin_user_relationship`. The schema itself maps very closely with the database table we defined earlier, only we've defined a default value for the relationship in our application.
 
-The `changeset/2` function has some new function calls too. We're using [`validate_inclusion/4`](https://hexdocs.pm/ecto/Ecto.Changeset.html#validate_inclusion/4) to make sure that the relationship is one of the known types we defined earlier. We're also specifying a `:name` with our `unique_constraint/3` call, which specifies the name of the index that will be used to validate the unique constraint.
+The `changeset/2` function has some new function calls too. We're using [`validate_inclusion/4`](https://hexdocs.pm/ecto/Ecto.Changeset.html#validate_inclusion/4) to make sure that the relationship is one of the known types we defined earlier. We're also providing a `name` option with our `unique_constraint/3` call, which specifies the name of the index that will be used to validate the unique constraint.
 
 You'll notice that we're only providing one field name for the unique constraint, which the [Ecto docs](https://hexdocs.pm/ecto/Ecto.Changeset.html#unique_constraint/3-complex-constraints) explain will be used as the key for our changeset error. That is, in practical terms, that the error will be associated with the `:organisation` field of our schema. We can only provide one field name to `unique_constraint/3`, but we must make sure it's part of the index whose name we have provided.
 
@@ -638,7 +642,7 @@ Now that the relationship schema has been created, we can reference it from both
 We also [have to specify the schema to that the many-to-many](https://hexdocs.pm/ecto/Ecto.Schema.html#many_to_many/3) relationship is stored in. We do this by providing either a schema name or module containing a schema as the `join_through` option. Below I've decided to use the `OrganisationUser` module we just created.
 
 ```elixir
-schema "organisations_organisations" do
+schema "organisations" do
   field :name, :string
   many_to_many :users, RosterApp.Accounts.User, join_through: RosterApp.Organisations.OrganisationUser
 
@@ -649,7 +653,7 @@ end
 And likewise, in our `User`, we can add the `many_to_many` field to the schema, with the name `:organisations`, providing the `Organisation` module as the type, joining through the `OrganisationUser` module.
 
 ```elixir
-schema "accounts_users" do
+schema "users" do
     field :display_name, :string
     field :email, :string
     field :password, :string
@@ -664,7 +668,7 @@ Since `Roster`s also have a relationship with `Organisation`s we will need to up
 We first need to add a [`belongs_to`](https://hexdocs.pm/ecto/Ecto.Schema.html#belongs_to/3) field to our schema, to indicate that each roster is "owned" by an organisation. We will also need to update the `changeset/3` call to include the `:organisation_id` in the `cast/3` and `validate_required/3` calls.
 
 ```elixir
-schema "rostering_rosters" do
+schema "rosters" do
   field :name, :string
   belongs_to :organisation, RosterApp.Organisations.Organisation
 
@@ -679,9 +683,9 @@ def changeset(%Roster{} = roster, attrs) do
 end
 ```
 
-Now if we try and run `mix ecto.migrate` now we'll face the same problem we did when adding `Roster`, we've defined a non-nullable field (on `rostering_rosters`) with no sane default. So restart your db container, and then run `mix ecto.create && mix ecto.migrate && mix phx.server` to get everything running.
+Now if we try and run `mix ecto.migrate` now we'll face the same problem we did when adding `Roster`, we've defined a non-nullable field (on `rosters`) with no sane default. So restart your db container, and then run `mix ecto.create && mix ecto.migrate && mix phx.server` to get everything running.
 
-If we try and add in our data again we'll get stuck when attempting to create a roster, since we haven't updated the UI to handle the new `:organisation_id` field we just made a required field. Opening up `lib/roster_app/web/templates/roster/form.html.eex` we can simply add another `number_input` to collect the data we need.
+If we try and add in our data again we'll get stuck when attempting to create a roster, since we haven't updated the UI to handle the new `:organisation_id` field we just made a required field. Opening up `lib/roster_app_web/templates/roster/form.html.eex` we can simply add another `number_input` to collect the data we need.
 
 ```html
   <div class="form-group">
