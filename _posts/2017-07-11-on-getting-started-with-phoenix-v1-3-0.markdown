@@ -305,7 +305,7 @@ If everything is working for you, now would be a good time to commit, because we
 mix phx.gen.html Rostering Shift shifts user_id:references:users start_time:datetime end_time:datetime
 ```
 
-That `user:references:users` bit is new, so let's unpack that a bit. The first part, `user`, is our field name, which we're using to keep track of the person that will be working the shift. By using `references` we're telling the generator that we're actually not going to store the user here, but instead will refer to data stored elsewhere. We use the plural `users` here, as the last part of this little triplet is the schema we're referring to, not the name of the module.
+That `user_id:references:users` bit is new, so let's unpack that a bit. The first part, `user`, is our field name, which we're using to keep track of the person that will be working the shift. By using `references` we're telling the generator that we're actually not going to store the user here, but instead will refer to data stored elsewhere. We use the plural `users` here, as the last part of this little triplet is the schema we're referring to, not the name of the module.
 
 The files generated this time around will have a very similar layout to the files that were generated for `User`, but let's have a look at some of the differences. If we have a look in `priv/repo/migrations/<datetime>_create_shifts.exs` we will see the following in the `change/0` function.
 
