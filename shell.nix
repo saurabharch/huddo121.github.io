@@ -12,6 +12,6 @@ in
     buildInputs = [ jekyll_env ];
 
     shellHook = ''
-      exec ${jekyll_env}/bin/jekyll serve --watch
+      exec ${jekyll_env}/bin/jekyll serve --watch --drafts --future
     '';
   }
