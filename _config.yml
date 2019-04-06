@@ -2,11 +2,10 @@
 # Site settings
 title: Michael Hudson
 name: Michael Hudson
-subtitle: Assorted musings and learnings
+subtitle: Functional Propagandist
 email: michael.andrew.hudson@gmail.com
 description: >
-  A personal blog focusing on learnings in software engineering, as well
-  as musings on managing and building great software development teams.
+  A personal blog chronicling my software development adventures.
 baseurl: ""
 url: "http://michaelhudson.net.au"
 twitter_username:
@@ -81,7 +80,7 @@ social:
   - name: Reddit
     icon: reddit
     share: true
-    
+
   - name: "Hacker News"
     icon: hacker-news
     username:
