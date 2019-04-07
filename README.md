@@ -1,4 +1,4 @@
-## From the desk of Michael Hudson
+# From the desk of Michael Hudson
 
 This site is available at [http://MichaelHudson.net.au](http://MichaelHudson.net.au) and [http://IAmMichaelHudson.com](http://IAmMichaelHudson.com)
 
@@ -16,7 +16,7 @@ theme, including;
 
 For more information visit the [About This Site](http://huddo121.github.io/about-this-site/) page.
 
-# Working With This Repo
+## Working With This Repo
 
 If you're using [Nix](https://nixos.org/nix/), then running `nix-shell` in the project directory should be enough to get the project up and running.
 To update the dependencies the following steps should be followed.

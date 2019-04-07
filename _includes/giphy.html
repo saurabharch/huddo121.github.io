@@ -1,0 +1,12 @@
+<div markdown="1">
+  <video autoplay="autoplay" loop>
+    <source type="video/mp4" src="https://media.giphy.com/media/{{include.image}}/giphy.mp4" />
+      There would normally be a awesome image here, but your browser doesn't support HTML5 video :anguished:
+      :movie_camera:
+  </video>
+</div>
+{% if include.caption %}
+<span class="lightbox-caption" markdown="1">
+    {{ include.caption }}
+</span>
+{% endif %}
